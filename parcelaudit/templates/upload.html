@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ParcelAudit</title>
+<style>
+  body { font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: #1a1d21; background: #fff; margin: 0; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 16px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .muted { color: #5f6b76; }
+  label { display: block; font-weight: 600; margin: 20px 0 6px; }
+  input[type=text], input[type=file] { width: 100%; padding: 8px; border: 1px solid #d0d7de; border-radius: 6px; font: inherit; }
+  button { margin-top: 28px; background: #0b6e4f; color: #fff; border: 0; border-radius: 6px; padding: 10px 20px; font: inherit; font-weight: 600; cursor: pointer; }
+  .error { background: #fdecec; border-left: 3px solid #b42318; padding: 10px 14px; border-radius: 4px; margin-top: 20px; }
+  small { color: #5f6b76; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Shipping cost audit</h1>
+  <p class="muted">Upload a rate card, the carrier invoice export and (optionally) your shipment export. Files are processed in memory and not stored.</p>
+  {% if error %}<div class="error">{{ error }}</div>{% endif %}
+  <form action="/audit" method="post" enctype="multipart/form-data">
+    <label>Customer name</label><input type="text" name="customer" placeholder="Shop GmbH">
+    <label>Period</label><input type="text" name="period" placeholder="September 2026">
+    <label>Rate card (YAML)</label><input type="file" name="ratecard" accept=".yaml,.yml" required>
+    <label>Carrier invoice(s) (CSV)</label><input type="file" name="invoices" accept=".csv,.txt" multiple required>
+    <label>Shipment / label export (CSV)</label><input type="file" name="shipments" accept=".csv,.txt">
+    <small>Needed for weight checks, unknown parcels and lost-parcel claims.</small>
+    <br><button type="submit">Run audit</button>
+  </form>
+</main>
+</body>
+</html>

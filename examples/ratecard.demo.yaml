@@ -1,0 +1,54 @@
+carrier: DemoCarrier
+contract_id: DEMO-2026
+weight_tolerance_kg: 0.1
+volumetric_divisor: null
+liability_cap: 500
+services:
+  PAKET_NATIONAL:
+    aliases:
+    - Paket National
+    - Paket
+    - V01PAK
+    weight_bands:
+    - max_kg: 2
+      price: 3.9
+    - max_kg: 5
+      price: 4.4
+    - max_kg: 10
+      price: 5.6
+    - max_kg: 31.5
+      price: 8.9
+  PAKET_EU:
+    aliases:
+    - Paket International EU
+    - V53WPAK
+    weight_bands:
+    - max_kg: 5
+      price: 11.5
+    - max_kg: 10
+      price: 14.9
+    - max_kg: 31.5
+      price: 21.0
+surcharges:
+  fuel:
+    aliases:
+    - Treibstoffzuschlag
+    - Kraftstoffzuschlag
+    - Fuel surcharge
+    - Energiezuschlag
+    type: percent
+    value: 4.0
+  toll:
+    aliases:
+    - Mautzuschlag
+    - Maut
+    - Toll
+    type: flat
+    value: 0.07
+  bulky:
+    aliases:
+    - Sperrgutzuschlag
+    - Sperrgut
+    - Bulky goods
+    type: flat
+    value: 18.0

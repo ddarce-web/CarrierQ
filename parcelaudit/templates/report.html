@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipping Cost Audit{% if customer %} – {{ customer }}{% endif %}</title>
+<style>
+  :root { --fg:#1a1d21; --muted:#5f6b76; --line:#e3e7eb; --bg:#fff; --card:#f6f8fa; --accent:#0b6e4f; --warn:#9a5b00; }
+  * { box-sizing: border-box; }
+  body { font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color: var(--fg); background: var(--bg); margin: 0; }
+  main { max-width: 1040px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 36px 0 12px; }
+  .muted { color: var(--muted); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+  .kpi { background: var(--card); border-radius: 10px; padding: 16px; }
+  .kpi .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .kpi.hero .v { color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; white-space: normal; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tbl { overflow-x: auto; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: var(--card); }
+  .badge.high { background: #dcf3e8; color: #0b6e4f; } .badge.medium { background: #fdf0d5; color: #8a5300; } .badge.low { background: #eceff2; color: #5f6b76; }
+  .warn { background: #fff8e6; border-left: 3px solid var(--warn); padding: 10px 14px; margin: 6px 0; border-radius: 4px; }
+  code { font-size: 13px; } td:nth-child(2) { white-space: nowrap; }
+  footer { margin-top: 48px; font-size: 13px; }
+  @media print { .kpi { border: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Shipping Cost Audit{% if customer %}: {{ customer }}{% endif %}</h1>
+  <div class="muted">Carrier: {{ r.carrier }}{% if period %} · Period: {{ period }}{% endif %} · Generated {{ today }}</div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="muted">Billed amount audited</div><div class="v">{{ r.total_billed|eur }}</div></div>
+    <div class="kpi"><div class="muted">Parcels audited</div><div class="v">{{ r.lines_audited }}</div></div>
+    <div class="kpi hero"><div class="muted">Overbilled (high + medium)</div><div class="v">{{ recoverable|eur }}</div></div>
+    <div class="kpi"><div class="muted">Overbilled share of spend</div><div class="v">{{ "%.1f"|format(pct) }}%</div></div>
+    {% if claims %}<div class="kpi"><div class="muted">Open claims (goods value)</div><div class="v">{{ claims|eur }}</div></div>{% endif %}
+  </div>
+  {% if recoverable_all > recoverable %}
+  <p class="muted">A further {{ (recoverable_all - recoverable)|eur }} needs manual review (low confidence).</p>
+  {% endif %}
+
+  {% if r.warnings %}<h2>Data notes</h2>{% for w in r.warnings %}<div class="warn">{{ w }}</div>{% endfor %}{% endif %}
+
+  <h2>Findings by category</h2>
+  <div class="tbl"><table>
+    <tr><th>Category</th><th class="num">Parcels</th><th class="num">Amount</th></tr>
+    {% for key, row in by_rule.items() %}
+    <tr><td>{{ row.title }}</td><td class="num">{{ row.count }}</td><td class="num">{{ row.amount|eur }}</td></tr>
+    {% else %}<tr><td colspan="3" class="muted">No overcharges found.</td></tr>{% endfor %}
+  </table></div>
+
+  <h2>All findings</h2>
+  <div class="tbl"><table>
+    <tr><th>Tracking</th><th>Invoice</th><th>Issue</th><th>Confidence</th><th class="num">Amount</th></tr>
+    {% for f in r.findings %}
+    <tr>
+      <td><code>{{ f.tracking_number }}</code></td>
+      <td>{{ f.invoice_number }}</td>
+      <td><strong>{{ f.title }}</strong><br><span class="muted">{{ f.explanation }}</span></td>
+      <td><span class="badge {{ f.confidence.value }}">{{ f.confidence.value }}</span></td>
+      <td class="num">{{ f.amount|eur }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+
+  <footer class="muted">
+    Amounts are calculated against the rate card on file. "High" = invoice contradicts contract terms;
+    "medium" = very likely error, dispute recommended; "low" = needs review before disputing.
+  </footer>
+</main>
+</body>
+</html>

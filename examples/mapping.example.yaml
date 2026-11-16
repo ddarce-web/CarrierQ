@@ -1,0 +1,18 @@
+# Use when auto-detection fails:  parcelaudit audit ... --mapping mapping.yaml
+# Left: our field. Right: the exact column header in the customer's file.
+invoice:
+  tracking_number: "Sendungsnummer"
+  invoice_number: "Rechnungsnummer"
+  ship_date: "Einlieferungsdatum"
+  service: "Produkt"
+  billed_weight_kg: "Abrechnungsgewicht (kg)"
+  # long format (one row per charge):
+  charge_type: "Leistungsart"
+  amount: "Nettobetrag"
+  # wide format instead: base_charge: "Grundpreis"  (surcharge columns are detected by name)
+shipments:
+  tracking_number: "Tracking Code"
+  weight_kg: "Gewicht (kg)"
+  order_id: "Bestellnummer"
+  status: "Status"
+  declared_value: "Warenwert"
